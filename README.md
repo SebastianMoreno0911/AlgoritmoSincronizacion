@@ -21,8 +21,6 @@ Comprende **mutex, semáforos y secciones críticas** mediante una interfaz inte
 
 [https://sebastianmoreno0911.github.io/AlgoritmoSincronizacion](https://sebastianmoreno0911.github.io/AlgoritmoSincronizacion/)
 
-![Simulador](docs/screenshot.png)
-
 </div>
 
 ---
@@ -30,8 +28,8 @@ Comprende **mutex, semáforos y secciones críticas** mediante una interfaz inte
 # 🎬 Vista del Simulador
 
 <div align="center">
-
-![Simulador](docs/simulator.gif)
+![Simulador](docs/screenshot.png)
+![Simulador](docs/simulador.gif)
 
 </div>
 
