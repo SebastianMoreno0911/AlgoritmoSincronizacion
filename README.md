@@ -28,7 +28,9 @@ Comprende **mutex, semáforos y secciones críticas** mediante una interfaz inte
 # 🎬 Vista del Simulador
 
 <div align="center">
+
 ![Simulador](docs/screenshot.png)
+
 ![Simulador](docs/simulador.gif)
 
 </div>
