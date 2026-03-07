@@ -1,0 +1,1266 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simulador de Mutex Bancario</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Sora", sans-serif;
+        background:
+          radial-gradient(
+            900px 500px at -10% -20%,
+            rgba(16, 185, 129, 0.2),
+            transparent 60%
+          ),
+          radial-gradient(
+            700px 450px at 110% 10%,
+            rgba(249, 115, 22, 0.22),
+            transparent 60%
+          ),
+          linear-gradient(155deg, #0b1021 0%, #091220 42%, #111827 100%);
+      }
+    </style>
+  </head>
+  <body class="min-h-screen text-gray-100">
+    <main class="max-w-6xl mx-auto px-4 py-8 md:py-10">
+      <section
+        id="algorithmSelector"
+        class="space-y-6 bg-slate-900/60 backdrop-blur border border-white/10 rounded-2xl p-5 md:p-8 shadow-xl shadow-black/25"
+      >
+        <header class="space-y-3">
+          <p
+            class="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] bg-cyan-500/20 text-cyan-200 border border-cyan-300/30 rounded-full px-3 py-1"
+          >
+            Seleccion de algoritmo
+          </p>
+          <h1 class="text-2xl md:text-4xl font-extrabold leading-tight">
+            Laboratorio de Sincronizacion
+          </h1>
+          <p class="text-sm md:text-base text-gray-300 max-w-3xl">
+            Elige el algoritmo para entrar al simulador. Modulos disponibles:
+            Mutex, Semaforos, Variables de condicion, Monitores, Barreras y
+            Join/Await.
+          </p>
+        </header>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <button
+            data-algorithm="mutex"
+            class="algorithm-btn text-left bg-emerald-600/90 hover:bg-emerald-500 border border-emerald-300/30 rounded-xl p-4 transition-colors"
+          >
+            <div class="text-sm font-bold">Mutex</div>
+            <div class="text-xs text-emerald-100 mt-1">
+              <!-- Cambiar a cuena bancaria -->
+              Cuenta Bancaria
+            </div>
+          </button>
+          <button
+            data-algorithm="semaphores"
+            class="algorithm-btn text-left bg-cyan-700/90 hover:bg-cyan-600 border border-cyan-300/30 rounded-xl p-4 transition-colors"
+          >
+            <div class="text-sm font-bold">Semaforos</div>
+            <div class="text-xs text-cyan-100 mt-1">Control de impresoras</div>
+          </button>
+          <button
+            data-algorithm="condition-variables"
+            class="algorithm-btn text-left bg-fuchsia-700/90 hover:bg-fuchsia-600 border border-fuchsia-300/30 rounded-xl p-4 transition-colors"
+          >
+            <div class="text-sm font-bold">Variables de condicion</div>
+            <div class="text-xs text-fuchsia-100 mt-1">
+              Restaurante esperando comida
+            </div>
+          </button>
+          <button
+            data-algorithm="monitors"
+            class="algorithm-btn text-left bg-indigo-700/90 hover:bg-indigo-600 border border-indigo-300/30 rounded-xl p-4 transition-colors"
+          >
+            <div class="text-sm font-bold">Monitores</div>
+            <div class="text-xs text-indigo-100 mt-1">
+              Biblioteca lectores/escritor
+            </div>
+          </button>
+          <button
+            data-algorithm="barriers"
+            class="algorithm-btn text-left bg-amber-700/90 hover:bg-amber-600 border border-amber-300/30 rounded-xl p-4 transition-colors"
+          >
+            <div class="text-sm font-bold">Barreras</div>
+            <div class="text-xs text-amber-100 mt-1">
+              Carrera con checkpoint
+            </div>
+          </button>
+          <button
+            data-algorithm="join-await"
+            class="algorithm-btn text-left bg-lime-700/90 hover:bg-lime-600 border border-lime-300/30 rounded-xl p-4 transition-colors"
+          >
+            <div class="text-sm font-bold">Join y await</div>
+            <div class="text-xs text-lime-100 mt-1">Construccion de casa</div>
+          </button>
+          <button
+            data-algorithm="peterson"
+            class="algorithm-btn text-left bg-rose-700/90 hover:bg-rose-600 border border-rose-300/30 rounded-xl p-4 transition-colors sm:col-span-2 lg:col-span-1"
+          >
+            <div class="text-sm font-bold">Monedas de Peterson</div>
+            <div class="text-xs text-rose-100 mt-1">
+              Robots compartiendo estacion
+            </div>
+          </button>
+        </div>
+
+        <p id="algorithmHint" class="text-sm text-amber-200 min-h-6"></p>
+      </section>
+
+      <section id="simulatorApp" class="hidden space-y-6">
+        <!-- Cabecera principal del simulador. -->
+        <header class="space-y-3">
+          <div class="flex items-center justify-between gap-2">
+            <p
+              class="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] bg-emerald-500/20 text-emerald-200 border border-emerald-300/30 rounded-full px-3 py-1"
+            >
+              Simulacion de sincronizacion
+            </p>
+            <button
+              id="backToAlgorithms"
+              class="bg-slate-800/80 hover:bg-slate-700 border border-white/10 rounded-lg px-3 py-1.5 text-xs font-semibold"
+            >
+              Cambiar algoritmo
+            </button>
+          </div>
+          <h1 class="text-2xl md:text-4xl font-extrabold leading-tight">
+            Simulador de Hilos y Mutex
+          </h1>
+          <p class="text-sm md:text-base text-gray-300 max-w-3xl">
+            Visualizacion de concurrencia: acceso a seccion critica sobre saldo
+            bancario.
+          </p>
+        </header>
+
+        <section
+          class="bg-slate-900/70 backdrop-blur border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/25"
+        >
+          <!-- Controles base para crear y ejecutar escenarios. -->
+          <div class="grid md:grid-cols-4 gap-3 items-end">
+            <div
+              class="md:col-span-4 text-xs text-cyan-200 font-semibold tracking-wide"
+            >
+              Paso 1: define el escenario y genera los hilos
+            </div>
+            <label class="flex flex-col gap-1">
+              <span class="text-xs text-gray-300">Cantidad de hilos</span>
+              <input
+                id="threadCount"
+                type="number"
+                min="1"
+                value="3"
+                class="bg-slate-950/70 border border-white/15 rounded-lg px-3 py-2 text-sm outline-none focus:border-cyan-400"
+              />
+            </label>
+            <label class="flex flex-col gap-1">
+              <span class="text-xs text-gray-300">Saldo inicial</span>
+              <input
+                id="initialBalance"
+                type="number"
+                min="1"
+                value="1000"
+                class="bg-slate-950/70 border border-white/15 rounded-lg px-3 py-2 text-sm outline-none focus:border-cyan-400"
+              />
+            </label>
+            <button
+              id="generateScenario"
+              class="bg-cyan-600 hover:bg-cyan-500 transition-colors rounded-lg px-4 py-2 text-sm font-semibold"
+            >
+              Generar escenario
+            </button>
+            <div class="flex gap-2">
+              <button
+                id="stepBtn"
+                class="flex-1 bg-orange-600 hover:bg-orange-500 transition-colors rounded-lg px-4 py-2 text-sm font-semibold"
+              >
+                Paso
+              </button>
+              <button
+                id="autoBtn"
+                class="flex-1 bg-emerald-600 hover:bg-emerald-500 transition-colors rounded-lg px-4 py-2 text-sm font-semibold"
+              >
+                Auto
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-4 border-t border-white/10 pt-4">
+            <h3 class="text-sm font-semibold mb-2 text-cyan-100">
+              Paso 2: operacion por cliente
+            </h3>
+            <p class="text-xs text-gray-400 mb-3">
+              Configura que hara cada hilo al entrar a la seccion critica.
+            </p>
+            <div id="operationsRows" class="space-y-2"></div>
+          </div>
+        </section>
+
+        <section class="grid lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 space-y-4">
+            <div
+              class="bg-slate-900/70 backdrop-blur border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/20"
+            >
+              <h2 class="text-lg font-semibold mb-3 text-cyan-100">
+                Paso 3: estado del sistema
+              </h2>
+              <div class="grid sm:grid-cols-2 gap-3">
+                <div
+                  class="bg-slate-950/60 rounded-xl p-3 border border-white/10"
+                >
+                  <div class="text-xs text-gray-300">Saldo actual</div>
+                  <div
+                    id="balance"
+                    class="text-2xl font-extrabold text-emerald-300"
+                  >
+                    $0
+                  </div>
+                </div>
+                <div
+                  class="bg-slate-950/60 rounded-xl p-3 border border-white/10"
+                >
+                  <div class="text-xs text-gray-300">Dueno del mutex</div>
+                  <div
+                    id="owner"
+                    class="text-2xl font-extrabold text-amber-200"
+                  >
+                    Libre
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4">
+                <h3 class="text-sm font-semibold mb-2">Cola del mutex</h3>
+                <div id="queue" class="flex flex-wrap gap-2 min-h-8"></div>
+              </div>
+            </div>
+
+            <div
+              class="bg-slate-900/70 backdrop-blur border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/20"
+            >
+              <h2 class="text-lg font-semibold mb-3">Clientes</h2>
+              <!-- Zona donde renderer dibuja tarjetas de hilos. -->
+              <div id="threads"></div>
+            </div>
+          </div>
+
+          <aside
+            class="bg-slate-900/70 backdrop-blur border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/20"
+          >
+            <h2 class="text-lg font-semibold mb-3 text-orange-100">
+              Timeline de Ejecucion
+            </h2>
+            <div
+              id="timeline"
+              class="h-[32rem] overflow-y-auto bg-slate-950/80 p-3 rounded-xl border border-white/10 flex flex-col"
+            ></div>
+          </aside>
+        </section>
+      </section>
+
+      <section id="semaphoreApp" class="hidden space-y-6">
+        <header class="space-y-3">
+          <div class="flex items-center justify-between gap-2">
+            <p
+              class="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] bg-cyan-500/20 text-cyan-200 border border-cyan-300/30 rounded-full px-3 py-1"
+            >
+              Semaforos - control de impresoras
+            </p>
+            <button
+              id="backFromSemaphores"
+              class="bg-slate-800/80 hover:bg-slate-700 border border-white/10 rounded-lg px-3 py-1.5 text-xs font-semibold"
+            >
+              Cambiar algoritmo
+            </button>
+          </div>
+          <h1 class="text-2xl md:text-4xl font-extrabold leading-tight">
+            Centro de Impresion Compartido
+          </h1>
+          <p class="text-sm md:text-base text-gray-300 max-w-3xl">
+            Los trabajos compiten por un numero limitado de impresoras usando un
+            semaforo contador.
+          </p>
+        </header>
+
+        <section
+          class="bg-slate-900/70 backdrop-blur border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/25"
+        >
+          <div class="grid md:grid-cols-4 gap-3 items-end">
+            <div
+              class="md:col-span-4 text-xs text-cyan-200 font-semibold tracking-wide"
+            >
+              Paso 1: configura impresoras y trabajos
+            </div>
+            <label class="flex flex-col gap-1">
+              <span class="text-xs text-gray-300">Cantidad de trabajos</span>
+              <input
+                id="semJobCount"
+                type="number"
+                min="1"
+                value="6"
+                class="bg-slate-950/70 border border-white/15 rounded-lg px-3 py-2 text-sm outline-none focus:border-cyan-400"
+              />
+            </label>
+            <div class="flex flex-col gap-1">
+              <span class="text-xs text-gray-300">Cantidad de impresoras</span>
+              <div
+                id="semPrinterCountLabel"
+                class="bg-slate-950/70 border border-white/15 rounded-lg px-3 py-2 text-sm text-cyan-100 font-semibold"
+              >
+                Automatico: 6
+              </div>
+            </div>
+            <button
+              id="semGenerateScenario"
+              class="bg-cyan-600 hover:bg-cyan-500 transition-colors rounded-lg px-4 py-2 text-sm font-semibold"
+            >
+              Generar escenario
+            </button>
+            <div class="flex gap-2">
+              <button
+                id="semStepBtn"
+                class="flex-1 bg-orange-600 hover:bg-orange-500 transition-colors rounded-lg px-4 py-2 text-sm font-semibold"
+              >
+                Paso
+              </button>
+              <button
+                id="semAutoBtn"
+                class="flex-1 bg-emerald-600 hover:bg-emerald-500 transition-colors rounded-lg px-4 py-2 text-sm font-semibold"
+              >
+                Auto
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-4 border-t border-white/10 pt-4">
+            <h3 class="text-sm font-semibold mb-2 text-cyan-100">
+              Paso 2: paginas por trabajo
+            </h3>
+            <p class="text-xs text-gray-400 mb-3">
+              Cada trabajo espera una impresora libre, imprime y libera el
+              recurso.
+            </p>
+            <div id="semJobsRows" class="space-y-2"></div>
+          </div>
+        </section>
+
+        <section class="grid lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 space-y-4">
+            <div
+              class="bg-slate-900/70 backdrop-blur border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/20"
+            >
+              <h2 class="text-lg font-semibold mb-3 text-cyan-100">
+                Paso 3: estado del semaforo
+              </h2>
+              <div class="grid sm:grid-cols-2 gap-3">
+                <div
+                  class="bg-slate-950/60 rounded-xl p-3 border border-white/10"
+                >
+                  <div class="text-xs text-gray-300">Tokens disponibles</div>
+                  <div
+                    id="semTokens"
+                    class="text-2xl font-extrabold text-emerald-300"
+                  >
+                    0
+                  </div>
+                </div>
+                <div
+                  class="bg-slate-950/60 rounded-xl p-3 border border-white/10"
+                >
+                  <div class="text-xs text-gray-300">Cola de espera</div>
+                  <div
+                    id="semQueue"
+                    class="flex flex-wrap gap-2 min-h-8 mt-1"
+                  ></div>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="bg-slate-900/70 backdrop-blur border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/20"
+            >
+              <h2 class="text-lg font-semibold mb-1">Impresoras</h2>
+              <p class="text-xs text-gray-400 mb-3">
+                Cada impresora muestra su estado interno, trabajo actual y
+                metricas acumuladas.
+              </p>
+              <div
+                id="semPrinters"
+                class="grid sm:grid-cols-2 xl:grid-cols-3 gap-3"
+              ></div>
+            </div>
+
+            <div
+              class="bg-slate-900/70 backdrop-blur border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/20"
+            >
+              <h2 class="text-lg font-semibold mb-3">Trabajos</h2>
+              <div
+                id="semThreads"
+                class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3"
+              ></div>
+            </div>
+          </div>
+
+          <aside
+            class="bg-slate-900/70 backdrop-blur border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/20"
+          >
+            <h2 class="text-lg font-semibold mb-3 text-orange-100">
+              Timeline de Impresion
+            </h2>
+            <div
+              id="semTimeline"
+              class="h-[32rem] overflow-y-auto bg-slate-950/80 p-3 rounded-xl border border-white/10 flex flex-col"
+            ></div>
+          </aside>
+        </section>
+      </section>
+
+      <section id="conditionApp" class="hidden space-y-6">
+        <header class="space-y-3">
+          <div class="flex items-center justify-between gap-2">
+            <p
+              class="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] bg-fuchsia-500/20 text-fuchsia-200 border border-fuchsia-300/30 rounded-full px-3 py-1"
+            >
+              Variables de condicion - restaurante
+            </p>
+            <button
+              id="backFromConditions"
+              class="bg-slate-800/80 hover:bg-slate-700 border border-white/10 rounded-lg px-3 py-1.5 text-xs font-semibold"
+            >
+              Cambiar algoritmo
+            </button>
+          </div>
+          <h1 class="text-2xl md:text-4xl font-extrabold leading-tight">
+            Restaurante: Clientes Esperando Comida
+          </h1>
+          <p class="text-sm md:text-base text-gray-300 max-w-3xl">
+            Los clientes hacen wait() si no hay platos y el chef hace signal()
+            cuando cocina.
+          </p>
+        </header>
+
+        <section
+          class="bg-slate-900/70 backdrop-blur border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/25"
+        >
+          <div class="grid md:grid-cols-4 gap-3 items-end">
+            <div
+              class="md:col-span-4 text-xs text-fuchsia-200 font-semibold tracking-wide"
+            >
+              Paso 1: configura restaurante
+            </div>
+            <label class="flex flex-col gap-1">
+              <span class="text-xs text-gray-300">Cantidad de clientes</span>
+              <input
+                id="condCustomerCount"
+                type="number"
+                min="1"
+                value="5"
+                class="bg-slate-950/70 border border-white/15 rounded-lg px-3 py-2 text-sm outline-none focus:border-fuchsia-400"
+              />
+            </label>
+            <label class="flex flex-col gap-1">
+              <span class="text-xs text-gray-300">Platos a cocinar</span>
+              <input
+                id="condMealsToCook"
+                type="number"
+                min="1"
+                value="5"
+                class="bg-slate-950/70 border border-white/15 rounded-lg px-3 py-2 text-sm outline-none focus:border-fuchsia-400"
+              />
+            </label>
+            <button
+              id="condGenerateScenario"
+              class="bg-fuchsia-600 hover:bg-fuchsia-500 transition-colors rounded-lg px-4 py-2 text-sm font-semibold"
+            >
+              Generar escenario
+            </button>
+            <div class="flex gap-2">
+              <button
+                id="condStepBtn"
+                class="flex-1 bg-orange-600 hover:bg-orange-500 transition-colors rounded-lg px-4 py-2 text-sm font-semibold"
+              >
+                Paso
+              </button>
+              <button
+                id="condAutoBtn"
+                class="flex-1 bg-emerald-600 hover:bg-emerald-500 transition-colors rounded-lg px-4 py-2 text-sm font-semibold"
+              >
+                Auto
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="grid lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 space-y-4">
+            <div
+              class="bg-slate-900/70 backdrop-blur border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/20"
+            >
+              <h2 class="text-lg font-semibold mb-3 text-fuchsia-100">
+                Estado del restaurante
+              </h2>
+              <div class="grid sm:grid-cols-3 gap-3">
+                <div
+                  class="bg-slate-950/60 rounded-xl p-3 border border-white/10"
+                >
+                  <div class="text-xs text-gray-300">Platos disponibles</div>
+                  <div
+                    id="condAvailableDishes"
+                    class="text-2xl font-extrabold text-emerald-300"
+                  >
+                    0
+                  </div>
+                </div>
+                <div
+                  class="bg-slate-950/60 rounded-xl p-3 border border-white/10"
+                >
+                  <div class="text-xs text-gray-300">Total cocinados</div>
+                  <div
+                    id="condCookedTotal"
+                    class="text-2xl font-extrabold text-cyan-200"
+                  >
+                    0
+                  </div>
+                </div>
+                <div
+                  class="bg-slate-950/60 rounded-xl p-3 border border-white/10"
+                >
+                  <div class="text-xs text-gray-300">Total comidos</div>
+                  <div
+                    id="condEatenTotal"
+                    class="text-2xl font-extrabold text-amber-200"
+                  >
+                    0
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-4">
+                <h3 class="text-sm font-semibold mb-2">
+                  Cola wait() de la condicion
+                </h3>
+                <div
+                  id="condWaitingQueue"
+                  class="flex flex-wrap gap-2 min-h-8"
+                ></div>
+              </div>
+            </div>
+
+            <div
+              class="bg-slate-900/70 backdrop-blur border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/20"
+            >
+              <h2 class="text-lg font-semibold mb-3">Panel del chef</h2>
+              <div id="condChefPanel"></div>
+            </div>
+
+            <div
+              class="bg-slate-900/70 backdrop-blur border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/20"
+            >
+              <h2 class="text-lg font-semibold mb-3">Clientes</h2>
+              <div
+                id="condCustomers"
+                class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3"
+              ></div>
+            </div>
+          </div>
+
+          <aside
+            class="bg-slate-900/70 backdrop-blur border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/20"
+          >
+            <h2 class="text-lg font-semibold mb-3 text-orange-100">
+              Timeline del restaurante
+            </h2>
+            <div
+              id="condTimeline"
+              class="h-[32rem] overflow-y-auto bg-slate-950/80 p-3 rounded-xl border border-white/10 flex flex-col"
+            ></div>
+          </aside>
+        </section>
+      </section>
+
+      <section id="monitorApp" class="hidden space-y-6">
+        <header class="space-y-3">
+          <div class="flex items-center justify-between gap-2">
+            <p
+              class="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] bg-indigo-500/20 text-indigo-200 border border-indigo-300/30 rounded-full px-3 py-1"
+            >
+              Monitores - biblioteca lectores/escritor
+            </p>
+            <button
+              id="backFromMonitors"
+              class="bg-slate-800/80 hover:bg-slate-700 border border-white/10 rounded-lg px-3 py-1.5 text-xs font-semibold"
+            >
+              Cambiar algoritmo
+            </button>
+          </div>
+          <h1 class="text-2xl md:text-4xl font-extrabold leading-tight">
+            📚 Biblioteca: Lectores y Escritor
+          </h1>
+          <p class="text-sm md:text-base text-gray-300 max-w-3xl">
+            👩‍🎓 Estudiantes leen en paralelo, 🧑‍💼 bibliotecario actualiza catalogo
+            con acceso exclusivo.
+          </p>
+        </header>
+
+        <section
+          class="bg-slate-900/70 backdrop-blur border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/25"
+        >
+          <div class="grid md:grid-cols-4 gap-3 items-end">
+            <div
+              class="md:col-span-4 text-xs text-indigo-200 font-semibold tracking-wide"
+            >
+              Paso 1: configura lectores y actualizaciones
+            </div>
+            <label class="flex flex-col gap-1">
+              <span class="text-xs text-gray-300">Cantidad de lectores</span>
+              <input
+                id="monReaderCount"
+                type="number"
+                min="1"
+                value="6"
+                class="bg-slate-950/70 border border-white/15 rounded-lg px-3 py-2 text-sm outline-none focus:border-indigo-400"
+              />
+            </label>
+            <label class="flex flex-col gap-1">
+              <span class="text-xs text-gray-300"
+                >Actualizaciones del catalogo</span
+              >
+              <input
+                id="monUpdateCount"
+                type="number"
+                min="1"
+                value="3"
+                class="bg-slate-950/70 border border-white/15 rounded-lg px-3 py-2 text-sm outline-none focus:border-indigo-400"
+              />
+            </label>
+            <button
+              id="monGenerateScenario"
+              class="bg-indigo-600 hover:bg-indigo-500 transition-colors rounded-lg px-4 py-2 text-sm font-semibold"
+            >
+              Generar escenario
+            </button>
+            <div class="flex gap-2">
+              <button
+                id="monStepBtn"
+                class="flex-1 bg-orange-600 hover:bg-orange-500 transition-colors rounded-lg px-4 py-2 text-sm font-semibold"
+              >
+                Paso
+              </button>
+              <button
+                id="monAutoBtn"
+                class="flex-1 bg-emerald-600 hover:bg-emerald-500 transition-colors rounded-lg px-4 py-2 text-sm font-semibold"
+              >
+                Auto
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="grid lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 space-y-4">
+            <div
+              class="bg-slate-900/70 backdrop-blur border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/20"
+            >
+              <h2 class="text-lg font-semibold mb-3 text-indigo-100">
+                Estado del monitor
+              </h2>
+              <div class="grid sm:grid-cols-3 gap-3">
+                <div
+                  class="bg-slate-950/60 rounded-xl p-3 border border-white/10"
+                >
+                  <div class="text-xs text-gray-300">Version catalogo</div>
+                  <div
+                    id="monCatalogVersion"
+                    class="text-2xl font-extrabold text-cyan-200"
+                  >
+                    v1
+                  </div>
+                </div>
+                <div
+                  class="bg-slate-950/60 rounded-xl p-3 border border-white/10"
+                >
+                  <div class="text-xs text-gray-300">Lecturas completadas</div>
+                  <div
+                    id="monTotalReads"
+                    class="text-2xl font-extrabold text-emerald-300"
+                  >
+                    0
+                  </div>
+                </div>
+                <div
+                  class="bg-slate-950/60 rounded-xl p-3 border border-white/10"
+                >
+                  <div class="text-xs text-gray-300">
+                    Escrituras completadas
+                  </div>
+                  <div
+                    id="monTotalWrites"
+                    class="text-2xl font-extrabold text-fuchsia-200"
+                  >
+                    0
+                  </div>
+                </div>
+              </div>
+              <div class="grid sm:grid-cols-2 gap-3 mt-3">
+                <div
+                  class="bg-slate-950/60 rounded-xl p-3 border border-white/10"
+                >
+                  <div class="text-xs text-gray-300">Lectores activos</div>
+                  <div
+                    id="monActiveReaders"
+                    class="text-2xl font-extrabold text-indigo-200"
+                  >
+                    0
+                  </div>
+                </div>
+                <div
+                  class="bg-slate-950/60 rounded-xl p-3 border border-white/10"
+                >
+                  <div class="text-xs text-gray-300">Estado escritor</div>
+                  <div
+                    id="monWriterState"
+                    class="text-2xl font-extrabold text-amber-200"
+                  >
+                    Libre
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4">
+                <h3 class="text-sm font-semibold mb-2">Cola de lectores</h3>
+                <div
+                  id="monReaderQueue"
+                  class="flex flex-wrap gap-2 min-h-8"
+                ></div>
+              </div>
+              <div class="mt-3">
+                <h3 class="text-sm font-semibold mb-2">Cola de escritor</h3>
+                <div
+                  id="monWriterQueue"
+                  class="flex flex-wrap gap-2 min-h-8"
+                ></div>
+              </div>
+            </div>
+
+            <div
+              class="bg-slate-900/70 backdrop-blur border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/20"
+            >
+              <h2 class="text-lg font-semibold mb-3">🧑‍💼 Panel del escritor</h2>
+              <div id="monWriterPanel"></div>
+            </div>
+
+            <div
+              class="bg-slate-900/70 backdrop-blur border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/20"
+            >
+              <h2 class="text-lg font-semibold mb-3">👩‍🎓 Lectores</h2>
+              <div
+                id="monReaders"
+                class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3"
+              ></div>
+            </div>
+          </div>
+
+          <aside
+            class="bg-slate-900/70 backdrop-blur border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/20"
+          >
+            <h2 class="text-lg font-semibold mb-3 text-orange-100">
+              Timeline de la biblioteca
+            </h2>
+            <div
+              id="monTimeline"
+              class="h-[32rem] overflow-y-auto bg-slate-950/80 p-3 rounded-xl border border-white/10 flex flex-col"
+            ></div>
+          </aside>
+        </section>
+      </section>
+
+      <section id="barrierApp" class="hidden space-y-6">
+        <header class="space-y-3">
+          <div class="flex items-center justify-between gap-2">
+            <p
+              class="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] bg-amber-500/20 text-amber-200 border border-amber-300/30 rounded-full px-3 py-1"
+            >
+              Barrera - carrera con checkpoint
+            </p>
+            <button
+              id="backFromBarriers"
+              class="bg-slate-800/80 hover:bg-slate-700 border border-white/10 rounded-lg px-3 py-1.5 text-xs font-semibold"
+            >
+              Cambiar algoritmo
+            </button>
+          </div>
+          <h1 class="text-2xl md:text-4xl font-extrabold leading-tight">
+            🏁 Carrera con Barrera en Checkpoint
+          </h1>
+          <p class="text-sm md:text-base text-gray-300 max-w-3xl">
+            Todos los corredores deben llegar al checkpoint antes de que la
+            barrera se abra.
+          </p>
+        </header>
+
+        <section
+          class="bg-slate-900/70 backdrop-blur border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/25"
+        >
+          <div class="grid md:grid-cols-4 gap-3 items-end">
+            <div
+              class="md:col-span-4 text-xs text-amber-200 font-semibold tracking-wide"
+            >
+              Paso 1: configura la carrera
+            </div>
+            <label class="flex flex-col gap-1">
+              <span class="text-xs text-gray-300">Cantidad de corredores</span>
+              <input
+                id="barRacerCount"
+                type="number"
+                min="1"
+                value="6"
+                class="bg-slate-950/70 border border-white/15 rounded-lg px-3 py-2 text-sm outline-none focus:border-amber-400"
+              />
+            </label>
+            <div class="flex flex-col gap-1">
+              <span class="text-xs text-gray-300">Checkpoint</span>
+              <div
+                class="bg-slate-950/70 border border-white/15 rounded-lg px-3 py-2 text-sm text-amber-100 font-semibold"
+              >
+                Barrera obligatoria
+              </div>
+            </div>
+            <button
+              id="barGenerateScenario"
+              class="bg-amber-600 hover:bg-amber-500 transition-colors rounded-lg px-4 py-2 text-sm font-semibold"
+            >
+              Generar carrera
+            </button>
+            <div class="flex gap-2">
+              <button
+                id="barStepBtn"
+                class="flex-1 bg-orange-600 hover:bg-orange-500 transition-colors rounded-lg px-4 py-2 text-sm font-semibold"
+              >
+                Paso
+              </button>
+              <button
+                id="barAutoBtn"
+                class="flex-1 bg-emerald-600 hover:bg-emerald-500 transition-colors rounded-lg px-4 py-2 text-sm font-semibold"
+              >
+                Auto
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="grid lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 space-y-4">
+            <div
+              class="bg-slate-900/70 backdrop-blur border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/20"
+            >
+              <h2 class="text-lg font-semibold mb-3 text-amber-100">
+                Estado de la carrera
+              </h2>
+              <div class="grid sm:grid-cols-3 gap-3">
+                <div
+                  class="bg-slate-950/60 rounded-xl p-3 border border-white/10"
+                >
+                  <div class="text-xs text-gray-300">Total corredores</div>
+                  <div
+                    id="barTotalRacers"
+                    class="text-2xl font-extrabold text-cyan-200"
+                  >
+                    0
+                  </div>
+                </div>
+                <div
+                  class="bg-slate-950/60 rounded-xl p-3 border border-white/10"
+                >
+                  <div class="text-xs text-gray-300">Pasaron checkpoint</div>
+                  <div
+                    id="barCheckpointPassed"
+                    class="text-2xl font-extrabold text-amber-200"
+                  >
+                    0
+                  </div>
+                </div>
+                <div
+                  class="bg-slate-950/60 rounded-xl p-3 border border-white/10"
+                >
+                  <div class="text-xs text-gray-300">Llegaron a meta</div>
+                  <div
+                    id="barFinishedCount"
+                    class="text-2xl font-extrabold text-emerald-300"
+                  >
+                    0
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4">
+                <h3 class="text-sm font-semibold mb-2">
+                  Cola de la barrera (checkpoint)
+                </h3>
+                <div
+                  id="barWaitingQueue"
+                  class="flex flex-wrap gap-2 min-h-8"
+                ></div>
+              </div>
+            </div>
+
+            <div
+              class="bg-slate-900/70 backdrop-blur border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/20"
+            >
+              <h2 class="text-lg font-semibold mb-3">Corredores</h2>
+              <div
+                id="barRacers"
+                class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3"
+              ></div>
+            </div>
+          </div>
+
+          <aside
+            class="bg-slate-900/70 backdrop-blur border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/20"
+          >
+            <h2 class="text-lg font-semibold mb-3 text-orange-100">
+              Timeline de la carrera
+            </h2>
+            <div
+              id="barTimeline"
+              class="h-[32rem] overflow-y-auto bg-slate-950/80 p-3 rounded-xl border border-white/10 flex flex-col"
+            ></div>
+          </aside>
+        </section>
+      </section>
+
+      <section id="joinApp" class="hidden space-y-6">
+        <header class="space-y-3">
+          <div class="flex items-center justify-between gap-2">
+            <p
+              class="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] bg-lime-500/20 text-lime-200 border border-lime-300/30 rounded-full px-3 py-1"
+            >
+              Join / Await - construccion de casa
+            </p>
+            <button
+              id="backFromJoin"
+              class="bg-slate-800/80 hover:bg-slate-700 border border-white/10 rounded-lg px-3 py-1.5 text-xs font-semibold"
+            >
+              Cambiar algoritmo
+            </button>
+          </div>
+          <h1 class="text-2xl md:text-4xl font-extrabold leading-tight">
+            🏠 Construccion de Casa con Dependencias
+          </h1>
+          <p class="text-sm md:text-base text-gray-300 max-w-3xl">
+            Join sincroniza tareas puntuales y Await espera grupos completos
+            antes de entregar la casa.
+          </p>
+        </header>
+
+        <section
+          class="bg-slate-900/70 backdrop-blur border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/25"
+        >
+          <div class="grid md:grid-cols-4 gap-3 items-end">
+            <div
+              class="md:col-span-4 text-xs text-lime-200 font-semibold tracking-wide"
+            >
+              Paso 1: define duracion de etapas (ticks)
+            </div>
+            <label class="flex flex-col gap-1">
+              <span class="text-xs text-gray-300">Cimientos</span>
+              <input
+                id="joinFoundationDuration"
+                type="number"
+                min="1"
+                value="3"
+                class="bg-slate-950/70 border border-white/15 rounded-lg px-3 py-2 text-sm outline-none focus:border-lime-400"
+              />
+            </label>
+            <label class="flex flex-col gap-1">
+              <span class="text-xs text-gray-300">Paredes</span>
+              <input
+                id="joinWallsDuration"
+                type="number"
+                min="1"
+                value="3"
+                class="bg-slate-950/70 border border-white/15 rounded-lg px-3 py-2 text-sm outline-none focus:border-lime-400"
+              />
+            </label>
+            <label class="flex flex-col gap-1">
+              <span class="text-xs text-gray-300">Techo</span>
+              <input
+                id="joinRoofDuration"
+                type="number"
+                min="1"
+                value="2"
+                class="bg-slate-950/70 border border-white/15 rounded-lg px-3 py-2 text-sm outline-none focus:border-lime-400"
+              />
+            </label>
+            <label class="flex flex-col gap-1">
+              <span class="text-xs text-gray-300">Instalaciones</span>
+              <input
+                id="joinInstallDuration"
+                type="number"
+                min="1"
+                value="2"
+                class="bg-slate-950/70 border border-white/15 rounded-lg px-3 py-2 text-sm outline-none focus:border-lime-400"
+              />
+            </label>
+            <button
+              id="joinGenerateScenario"
+              class="bg-lime-600 hover:bg-lime-500 transition-colors rounded-lg px-4 py-2 text-sm font-semibold md:col-span-2"
+            >
+              Generar obra
+            </button>
+            <div class="flex gap-2 md:col-span-2">
+              <button
+                id="joinStepBtn"
+                class="flex-1 bg-orange-600 hover:bg-orange-500 transition-colors rounded-lg px-4 py-2 text-sm font-semibold"
+              >
+                Paso
+              </button>
+              <button
+                id="joinAutoBtn"
+                class="flex-1 bg-emerald-600 hover:bg-emerald-500 transition-colors rounded-lg px-4 py-2 text-sm font-semibold"
+              >
+                Auto
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="grid lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 space-y-4">
+            <div
+              class="bg-slate-900/70 backdrop-blur border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/20"
+            >
+              <h2 class="text-lg font-semibold mb-3 text-lime-100">
+                Estado de la casa
+              </h2>
+              <div class="grid sm:grid-cols-2 gap-3">
+                <div
+                  class="bg-slate-950/60 rounded-xl p-3 border border-white/10"
+                >
+                  <div class="text-xs text-gray-300">Entrega</div>
+                  <div
+                    id="joinHouseDelivered"
+                    class="text-2xl font-extrabold text-emerald-300"
+                  >
+                    En construccion
+                  </div>
+                </div>
+                <div
+                  class="bg-slate-950/60 rounded-xl p-3 border border-white/10"
+                >
+                  <div class="text-xs text-gray-300">Dependencias</div>
+                  <div class="text-sm text-gray-200 mt-1">
+                    Join + Await activos
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4">
+                <h3 class="text-sm font-semibold mb-2">Cola Join</h3>
+                <div id="joinQueue" class="flex flex-wrap gap-2 min-h-8"></div>
+              </div>
+              <div class="mt-3">
+                <h3 class="text-sm font-semibold mb-2">Cola Await</h3>
+                <div
+                  id="joinAwaitQueue"
+                  class="flex flex-wrap gap-2 min-h-8"
+                ></div>
+              </div>
+            </div>
+
+            <div
+              class="bg-slate-900/70 backdrop-blur border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/20"
+            >
+              <h2 class="text-lg font-semibold mb-3">Etapas de construccion</h2>
+              <div id="joinStages" class="grid sm:grid-cols-2 gap-3"></div>
+            </div>
+
+            <div
+              class="bg-slate-900/70 backdrop-blur border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/20"
+            >
+              <h2 class="text-lg font-semibold mb-3">Equipo de trabajo</h2>
+              <div
+                id="joinWorkers"
+                class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3"
+              ></div>
+            </div>
+          </div>
+
+          <aside
+            class="bg-slate-900/70 backdrop-blur border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/20"
+          >
+            <h2 class="text-lg font-semibold mb-3 text-orange-100">
+              Timeline de la obra
+            </h2>
+            <div
+              id="joinTimeline"
+              class="h-[32rem] overflow-y-auto bg-slate-950/80 p-3 rounded-xl border border-white/10 flex flex-col"
+            ></div>
+          </aside>
+        </section>
+      </section>
+
+      <section id="petersonApp" class="hidden space-y-6">
+        <header class="space-y-3">
+          <div class="flex items-center justify-between gap-2">
+            <p
+              class="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] bg-rose-500/20 text-rose-200 border border-rose-300/30 rounded-full px-3 py-1"
+            >
+              Peterson - robots compartiendo estacion
+            </p>
+            <button
+              id="backFromPeterson"
+              class="bg-slate-800/80 hover:bg-slate-700 border border-white/10 rounded-lg px-3 py-1.5 text-xs font-semibold"
+            >
+              Cambiar algoritmo
+            </button>
+          </div>
+          <h1 class="text-2xl md:text-4xl font-extrabold leading-tight">
+            🤖🤖 Estacion Compartida con Peterson
+          </h1>
+          <p class="text-sm md:text-base text-gray-300 max-w-3xl">
+            Dos robots compiten por una estacion critica usando flags y turn de
+            Peterson.
+          </p>
+        </header>
+
+        <section
+          class="bg-slate-900/70 backdrop-blur border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/25"
+        >
+          <div class="grid md:grid-cols-4 gap-3 items-end">
+            <div
+              class="md:col-span-4 text-xs text-rose-200 font-semibold tracking-wide"
+            >
+              Paso 1: configura ciclos por robot
+            </div>
+            <label class="flex flex-col gap-1">
+              <span class="text-xs text-gray-300">Ciclos por robot</span>
+              <input
+                id="petCycles"
+                type="number"
+                min="1"
+                value="4"
+                class="bg-slate-950/70 border border-white/15 rounded-lg px-3 py-2 text-sm outline-none focus:border-rose-400"
+              />
+            </label>
+            <div class="flex flex-col gap-1">
+              <span class="text-xs text-gray-300">Participantes</span>
+              <div
+                class="bg-slate-950/70 border border-white/15 rounded-lg px-3 py-2 text-sm text-rose-100 font-semibold"
+              >
+                Robot-1 y Robot-2
+              </div>
+            </div>
+            <button
+              id="petGenerateScenario"
+              class="bg-rose-600 hover:bg-rose-500 transition-colors rounded-lg px-4 py-2 text-sm font-semibold"
+            >
+              Generar escenario
+            </button>
+            <div class="flex gap-2">
+              <button
+                id="petStepBtn"
+                class="flex-1 bg-orange-600 hover:bg-orange-500 transition-colors rounded-lg px-4 py-2 text-sm font-semibold"
+              >
+                Paso
+              </button>
+              <button
+                id="petAutoBtn"
+                class="flex-1 bg-emerald-600 hover:bg-emerald-500 transition-colors rounded-lg px-4 py-2 text-sm font-semibold"
+              >
+                Auto
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="grid lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 space-y-4">
+            <div
+              class="bg-slate-900/70 backdrop-blur border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/20"
+            >
+              <h2 class="text-lg font-semibold mb-3 text-rose-100">
+                Estado de Peterson
+              </h2>
+              <div class="grid sm:grid-cols-2 gap-3">
+                <div
+                  class="bg-slate-950/60 rounded-xl p-3 border border-white/10"
+                >
+                  <div class="text-xs text-gray-300">Owner estacion</div>
+                  <div
+                    id="petOwner"
+                    class="text-2xl font-extrabold text-amber-200"
+                  >
+                    Libre
+                  </div>
+                </div>
+                <div
+                  class="bg-slate-950/60 rounded-xl p-3 border border-white/10"
+                >
+                  <div class="text-xs text-gray-300">Turn</div>
+                  <div
+                    id="petTurn"
+                    class="text-2xl font-extrabold text-cyan-200"
+                  >
+                    Robot-1
+                  </div>
+                </div>
+              </div>
+              <div class="grid sm:grid-cols-2 gap-3 mt-3">
+                <div
+                  class="bg-slate-950/60 rounded-xl p-3 border border-white/10"
+                >
+                  <div class="text-xs text-gray-300">Flags</div>
+                  <div
+                    id="petFlags"
+                    class="text-lg font-bold text-rose-200 mt-1"
+                  >
+                    R1=0 | R2=0
+                  </div>
+                </div>
+                <div
+                  class="bg-slate-950/60 rounded-xl p-3 border border-white/10"
+                >
+                  <div class="text-xs text-gray-300">Usos totales estacion</div>
+                  <div
+                    id="petTotalUses"
+                    class="text-2xl font-extrabold text-emerald-300"
+                  >
+                    0
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4" id="petStationPanel"></div>
+            </div>
+
+            <div
+              class="bg-slate-900/70 backdrop-blur border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/20"
+            >
+              <h2 class="text-lg font-semibold mb-3">Robots</h2>
+              <div id="petRobots" class="grid sm:grid-cols-2 gap-3"></div>
+            </div>
+          </div>
+
+          <aside
+            class="bg-slate-900/70 backdrop-blur border border-white/10 rounded-2xl p-4 md:p-5 shadow-xl shadow-black/20"
+          >
+            <h2 class="text-lg font-semibold mb-3 text-orange-100">
+              Timeline de Peterson
+            </h2>
+            <div
+              id="petTimeline"
+              class="h-[32rem] overflow-y-auto bg-slate-950/80 p-3 rounded-xl border border-white/10 flex flex-col"
+            ></div>
+          </aside>
+        </section>
+      </section>
+    </main>
+
+    <!-- Carga el punto de entrada del proyecto. -->
+    <script type="module" src="js/main.js"></script>
+  </body>
+</html>
