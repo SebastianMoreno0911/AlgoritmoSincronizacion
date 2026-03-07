@@ -22,7 +22,8 @@ Comprende **mutex, semáforos y secciones críticas** mediante una interfaz inte
 [https://sebastianmoreno0911.github.io/AlgoritmoSincronizacion](https://sebastianmoreno0911.github.io/AlgoritmoSincronizacion/)
 
 📜 **Documentación**
-[text](https://sebastianmoreno0911-algoritmosincronizacion-3.mintlify.app/introduction)
+
+[https://sebastianmoreno0911-algoritmosincronizacion-3.mintlify.app/introduction](https://sebastianmoreno0911-algoritmosincronizacion-3.mintlify.app/introduction)
 
 </div>
 
