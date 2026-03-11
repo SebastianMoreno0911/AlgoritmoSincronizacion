@@ -3,7 +3,7 @@ import { Timeline } from "./timeline.js";
 import { createLibraryScenario } from "../scenarios/libraryScenario.js";
 import { renderMonitorView } from "./monitorRenderer.js";
 
-// UI del caso Monitores: Biblioteca con lectores y escritor.
+// UI del caso Monitores: Biblioteca con lectores y escritor
 export const MonitorUI = {
   autoInterval: null,
   simulationFinished: false,
@@ -12,7 +12,7 @@ export const MonitorUI = {
     const timeline = new Timeline($("monTimeline"));
     let context = null;
 
-    // Crea escenario nuevo segun parametros del usuario.
+    // Crea escenario nuevo segun parametros del usuario
     $("monGenerateScenario").onclick = () => {
       this.stopAuto();
       this.simulationFinished = false;

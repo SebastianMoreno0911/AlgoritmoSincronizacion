@@ -2,7 +2,7 @@ import { Thread } from "../core/thread.js";
 import { Instructions } from "../core/instructions.js";
 import { Barrier } from "../core/barrier.js";
 
-// Escenario: carrera con checkpoint de barrera.
+// Escenario: carrera con checkpoint de barrera
 export function createRaceBarrierScenario(engine, racerCount) {
   const safeRacers = Math.max(1, Number(racerCount) || 1);
   const barrier = new Barrier(safeRacers);
@@ -10,8 +10,8 @@ export function createRaceBarrierScenario(engine, racerCount) {
   const race = {
     barrier,
     totalRacers: safeRacers,
-    passedCheckpointCount: 0, // Cuantos ya lograron cruzar la barrera.
-    finishedCount: 0, // Cuantos llegaron a meta.
+    passedCheckpointCount: 0, // Cuantos ya lograron cruzar la barrera
+    finishedCount: 0, // Cuantos llegaron a meta
   };
 
   for (let i = 1; i <= safeRacers; i++) {

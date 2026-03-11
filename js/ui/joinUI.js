@@ -3,7 +3,7 @@ import { Timeline } from "./timeline.js";
 import { createHouseScenario } from "../scenarios/houseScenario.js";
 import { renderJoinView } from "./joinRenderer.js";
 
-// UI para Join/Await: construccion de casa.
+// UI para Join/Await: construccion de casa
 export const JoinUI = {
   autoInterval: null,
   simulationFinished: false,
@@ -17,7 +17,7 @@ export const JoinUI = {
       this.simulationFinished = false;
       engine.threads = [];
 
-      // Duraciones por etapa para hacerlo interactivo.
+      // Duraciones por etapa para hacerlo interactivo
       const durations = {
         foundation: Number($("joinFoundationDuration").value),
         walls: Number($("joinWallsDuration").value),

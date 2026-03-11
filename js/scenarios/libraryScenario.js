@@ -2,19 +2,19 @@ import { Thread } from "../core/thread.js";
 import { Instructions } from "../core/instructions.js";
 import { LibraryMonitor } from "../core/monitorLibrary.js";
 
-// Escenario de biblioteca con estudiantes lectores y bibliotecario escritor.
+// Escenario de biblioteca con estudiantes lectores y bibliotecario escritor
 export function createLibraryScenario(engine, readerCount, writerUpdates) {
   const safeReaders = Math.max(1, Number(readerCount) || 1);
   const safeUpdates = Math.max(1, Number(writerUpdates) || 1);
 
   const library = {
     monitor: new LibraryMonitor(),
-    catalogVersion: 1, // Version del catalogo para mostrar cambios.
-    totalReads: 0, // Cuantas lecturas completaron los estudiantes.
-    totalWrites: 0, // Cuantas actualizaciones hizo el bibliotecario.
+    catalogVersion: 1, // Version del catalogo para mostrar cambios
+    totalReads: 0, // Cuantas lecturas completaron los estudiantes
+    totalWrites: 0, // Cuantas actualizaciones hizo el bibliotecario
   };
 
-  // Creo estudiantes lectores.
+  // Creo estudiantes lectores
   for (let i = 1; i <= safeReaders; i++) {
     const readInstructions = [
       { type: Instructions.ENTER_READ },
@@ -28,7 +28,7 @@ export function createLibraryScenario(engine, readerCount, writerUpdates) {
     engine.addThread(reader);
   }
 
-  // Creo un bibliotecario escritor que actualiza varias veces.
+  // Creo un bibliotecario escritor que actualiza varias veces
   const writerInstructions = [];
   for (let i = 0; i < safeUpdates; i++) {
     writerInstructions.push({ type: Instructions.ENTER_WRITE });

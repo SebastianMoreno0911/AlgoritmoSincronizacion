@@ -1,13 +1,13 @@
 import { Instructions } from "./instructions.js";
 
-// Motor de ejecucion: recorre hilos y procesa instrucciones.
+// Motor de ejecucion: recorre hilos y procesa instrucciones
 export class Engine {
   constructor() {
-    this.threads = []; // Lista de hilos registrados.
-    this.tick = 0; // Ciclo global del simulador.
+    this.threads = []; // Lista de hilos registrados
+    this.tick = 0; // Ciclo global del simulador
   }
 
-  // Registra un hilo en el motor.
+  // Registra un hilo en el motor
   addThread(thread) {
     this.threads.push(thread);
   }
@@ -175,7 +175,8 @@ export class Engine {
       case Instructions.ENTER_READ: {
         // El lector intenta entrar al monitor como lector.
         const entered = ctx.library.monitor.enterRead(thread);
-        if (!entered) return `📚 ${thread.name} espera para leer (monitor ocupado)`;
+        if (!entered)
+          return `📚 ${thread.name} espera para leer (monitor ocupado)`;
 
         thread.nextInstruction();
         return `📖 ${thread.name} entro a la biblioteca como lector`;
@@ -202,7 +203,8 @@ export class Engine {
       case Instructions.ENTER_WRITE: {
         // El bibliotecario intenta entrar con exclusividad.
         const entered = ctx.library.monitor.enterWrite(thread);
-        if (!entered) return `⏳ ${thread.name} espera para actualizar catalogo`;
+        if (!entered)
+          return `⏳ ${thread.name} espera para actualizar catalogo`;
 
         thread.nextInstruction();
         return `🧑‍💼 ${thread.name} entro al monitor en modo escritura`;
@@ -361,8 +363,14 @@ export class Engine {
 
         // Si el otro esta bloqueado por Peterson, lo pongo en ready para reintento.
         const otherId = 1 - id;
-        const other = this.threads.find((t) => Number(t.petersonId) === otherId);
-        if (other && other.state === "blocked" && other.blockedBy === ctx.station.lock) {
+        const other = this.threads.find(
+          (t) => Number(t.petersonId) === otherId,
+        );
+        if (
+          other &&
+          other.state === "blocked" &&
+          other.blockedBy === ctx.station.lock
+        ) {
           other.state = "ready";
           other.blockedBy = null;
           return `🔓 ${thread.name} libero estacion y desperto a ${other.name}`;

@@ -3,7 +3,7 @@ import { Timeline } from "./timeline.js";
 import { createRestaurantScenario } from "../scenarios/restaurantScenario.js";
 import { renderConditionView } from "./conditionRenderer.js";
 
-// UI para variables de condicion: restaurante esperando comida.
+// UI para variables de condicion: restaurante esperando comida
 export const ConditionUI = {
   autoInterval: null,
   simulationFinished: false,
@@ -12,7 +12,7 @@ export const ConditionUI = {
     const timeline = new Timeline($("condTimeline"));
     let context = null;
 
-    // Genera escenario con clientes + chef.
+    // Genera escenario con clientes + chef
     $("condGenerateScenario").onclick = () => {
       this.stopAuto();
       this.simulationFinished = false;
@@ -29,10 +29,10 @@ export const ConditionUI = {
       this.update(engine, context);
     };
 
-    // Paso manual del simulador.
+    // Paso manual del simulador
     $("condStepBtn").onclick = () => this.runTick(engine, context, timeline);
 
-    // Toggle de auto ejecucion.
+    // Toggle de auto ejecucion
     $("condAutoBtn").onclick = () => {
       if (this.autoInterval) this.stopAuto();
       else this.startAuto(engine, context, timeline);

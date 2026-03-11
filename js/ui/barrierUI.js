@@ -3,7 +3,7 @@ import { Timeline } from "./timeline.js";
 import { createRaceBarrierScenario } from "../scenarios/raceBarrierScenario.js";
 import { renderBarrierView } from "./barrierRenderer.js";
 
-// UI del caso barrera: carrera con checkpoint.
+// UI del caso barrera: carrera con checkpoint
 export const BarrierUI = {
   autoInterval: null,
   simulationFinished: false,
@@ -12,7 +12,7 @@ export const BarrierUI = {
     const timeline = new Timeline($("barTimeline"));
     let context = null;
 
-    // Genera escenario nuevo con N corredores.
+    // Genera escenario nuevo con N corredores
     $("barGenerateScenario").onclick = () => {
       this.stopAuto();
       this.simulationFinished = false;

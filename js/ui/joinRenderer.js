@@ -1,7 +1,7 @@
 import { clear } from "../utils/dom.js";
 import { Instructions } from "../core/instructions.js";
 
-// Render del caso Join/Await: construccion de casa.
+// Render del caso Join/Await: construccion de casa
 export function renderJoinView({
   context,
   threads,
@@ -11,9 +11,11 @@ export function renderJoinView({
   stagesContainer,
   workersContainer,
 }) {
-  deliveredNode.innerText = context.house.delivered ? "Entregada" : "En construccion";
+  deliveredNode.innerText = context.house.delivered
+    ? "Entregada"
+    : "En construccion";
 
-  // join queue por objetivo.
+  // join queue por objetivo
   clear(joinQueueNode);
   for (const [target, waiters] of context.joinManager.joinWaiters.entries()) {
     const chip = document.createElement("div");
@@ -23,7 +25,7 @@ export function renderJoinView({
     joinQueueNode.appendChild(chip);
   }
 
-  // await queue por hilo y su lista de dependencias.
+  // await queue por hilo y su lista de dependencias
   clear(awaitQueueNode);
   context.joinManager.awaitAllWaiters.forEach((entry) => {
     const chip = document.createElement("div");
@@ -33,13 +35,15 @@ export function renderJoinView({
     awaitQueueNode.appendChild(chip);
   });
 
-  // Tarjetas de etapas de construccion.
+  // Tarjetas de etapas de construccion
   clear(stagesContainer);
   Object.entries(context.house.stages).forEach(([name, stage]) => {
-    const percent = Math.min(100, Math.round((stage.current / stage.total) * 100));
+    const percent = Math.min(
+      100,
+      Math.round((stage.current / stage.total) * 100),
+    );
     const card = document.createElement("div");
-    card.className =
-      "rounded-xl border border-white/10 bg-slate-950/60 p-3";
+    card.className = "rounded-xl border border-white/10 bg-slate-950/60 p-3";
     card.innerHTML = `
       <div class="text-sm font-semibold">${name}</div>
       <div class="text-[11px] text-gray-400 mt-1">Responsable: ${stage.owner}</div>
@@ -54,7 +58,7 @@ export function renderJoinView({
     stagesContainer.appendChild(card);
   });
 
-  // Tarjetas de hilos/trabajadores.
+  // Tarjetas de hilos/trabajadores
   clear(workersContainer);
   threads.forEach((thread) => {
     const tone =
@@ -77,9 +81,11 @@ export function renderJoinView({
 function getWorkerPhase(thread) {
   const inst = thread.currentInstruction?.();
   if (!inst) return "Terminado";
-  if (inst.type === Instructions.BUILD_STAGE) return `Construyendo ${inst.stage}`;
+  if (inst.type === Instructions.BUILD_STAGE)
+    return `Construyendo ${inst.stage}`;
   if (inst.type === Instructions.JOIN_THREAD) return `Join con ${inst.target}`;
-  if (inst.type === Instructions.AWAIT_ALL) return `Await de ${inst.targets.join(", ")}`;
+  if (inst.type === Instructions.AWAIT_ALL)
+    return `Await de ${inst.targets.join(", ")}`;
   if (inst.type === Instructions.COMPLETE_HOUSE) return "Entregando casa";
   if (inst.type === Instructions.END) return "Finalizando";
   return "En proceso";

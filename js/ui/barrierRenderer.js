@@ -1,7 +1,7 @@
 import { clear } from "../utils/dom.js";
 import { Instructions } from "../core/instructions.js";
 
-// Render del caso Barrera: carrera con checkpoint obligatorio.
+// Render del caso Barrera: carrera con checkpoint obligatorio
 export function renderBarrierView({
   context,
   threads,
@@ -15,7 +15,7 @@ export function renderBarrierView({
   checkpointNode.innerText = String(context.race.passedCheckpointCount);
   finishNode.innerText = String(context.race.finishedCount);
 
-  // Cola actual de la barrera (hilos bloqueados en checkpoint).
+  // Cola actual de la barrera (hilos bloqueados en checkpoint)
   clear(waitingNode);
   context.race.barrier.waitingQueue.forEach((racer) => {
     const chip = document.createElement("div");
@@ -25,7 +25,7 @@ export function renderBarrierView({
     waitingNode.appendChild(chip);
   });
 
-  // Tarjetas de corredores para ver en que fase esta cada uno.
+  // Tarjetas de corredores para ver en que fase esta cada uno
   clear(racersContainer);
   threads.forEach((racer) => {
     const tone =

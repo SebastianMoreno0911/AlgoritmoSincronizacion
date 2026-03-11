@@ -1,7 +1,7 @@
 import { clear } from "../utils/dom.js";
 import { Instructions } from "../core/instructions.js";
 
-// Render principal del escenario de restaurante (variables de condicion).
+// Render principal del escenario de restaurante (variables de condicion)
 export function renderConditionView({
   context,
   threads,
@@ -13,12 +13,12 @@ export function renderConditionView({
   chefPanelNode,
   customersContainer,
 }) {
-  // Resumen rapido para entender estado global.
+  // Resumen rapido para entender estado global
   dishesNode.innerText = String(context.restaurant.availableDishes);
   cookedNode.innerText = String(context.restaurant.totalCooked);
   eatenNode.innerText = String(context.restaurant.totalEaten);
 
-  // Cola de wait() en la variable de condicion.
+  // Cola de wait() en la variable de condicion
   clear(waitingNode);
   context.restaurant.foodCondition.queue.forEach((thread) => {
     const chip = document.createElement("div");
@@ -28,7 +28,7 @@ export function renderConditionView({
     waitingNode.appendChild(chip);
   });
 
-  // Panel del chef con fase actual.
+  // Panel del chef con fase actual
   const chefInstruction = chefThread?.currentInstruction?.();
   const chefPhase = getChefPhase(chefThread, chefInstruction);
   chefPanelNode.innerHTML = `
@@ -40,7 +40,7 @@ export function renderConditionView({
     </div>
   `;
 
-  // Tarjetas de clientes (sin incluir al chef).
+  // Tarjetas de clientes (sin incluir al chef)
   const customers = threads.filter((thread) => thread !== chefThread);
   clear(customersContainer);
   customers.forEach((customer) => {
@@ -67,8 +67,10 @@ function getChefPhase(thread, currentInstruction) {
   if (!thread) return "Sin chef";
   if (thread.state === "finished") return "Termino jornada";
   if (!currentInstruction) return "Sin instruccion";
-  if (currentInstruction.type === Instructions.COOK_DISH) return "Cocinando plato";
-  if (currentInstruction.type === Instructions.SIGNAL_FOOD) return "Llamando cliente";
+  if (currentInstruction.type === Instructions.COOK_DISH)
+    return "Cocinando plato";
+  if (currentInstruction.type === Instructions.SIGNAL_FOOD)
+    return "Llamando cliente";
   if (currentInstruction.type === Instructions.END) return "Cerrando cocina";
   return "Preparando siguiente paso";
 }

@@ -1,21 +1,21 @@
-// Algoritmo de Peterson para exclusion mutua de 2 hilos/robots.
+// Algoritmo de Peterson para exclusion mutua de 2 hilos/robots
 export class PetersonLock {
   constructor() {
-    // flag[i] = true cuando el robot i quiere entrar a seccion critica.
+    // flag[i] = true cuando el robot i quiere entrar a seccion critica
     this.flag = [false, false];
-    // turn define quien cede paso en caso de conflicto.
+    // turn define quien cede paso en caso de conflicto
     this.turn = 0;
-    // Para visualizacion: dueño actual de la estacion.
+    // Para visualizacion: dueño actual de la estacion
     this.owner = null;
   }
 
-  // Intenta tomar lock para robot i (0 o 1). Devuelve true si puede entrar.
+  // Intenta tomar lock para robot i (0 o 1). Devuelve true si puede entrar
   lock(i) {
     const other = 1 - i;
     this.flag[i] = true;
     this.turn = other;
 
-    // Condicion de espera activa de Peterson.
+    // Condicion de espera activa de Peterson
     if (this.flag[other] && this.turn === other) {
       return false;
     }
@@ -24,7 +24,7 @@ export class PetersonLock {
     return true;
   }
 
-  // Libera lock del robot i.
+  // Libera lock del robot i
   unlock(i) {
     this.flag[i] = false;
     if (this.owner === i) this.owner = null;

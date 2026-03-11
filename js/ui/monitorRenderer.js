@@ -1,7 +1,7 @@
 import { clear } from "../utils/dom.js";
 import { Instructions } from "../core/instructions.js";
 
-// Render del escenario Biblioteca (monitor lectores-escritor).
+// Render del escenario Biblioteca (monitor lectores-escritor)
 export function renderMonitorView({
   context,
   threads,
