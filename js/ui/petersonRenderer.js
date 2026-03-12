@@ -1,7 +1,7 @@
 import { clear } from "../utils/dom.js";
 import { Instructions } from "../core/instructions.js";
 
-// Render del caso Peterson: robots compartiendo estacion.
+// Render del caso Peterson: robots compartiendo estacion
 export function renderPetersonView({
   context,
   threads,
@@ -13,7 +13,8 @@ export function renderPetersonView({
   robotsContainer,
 }) {
   const lock = context.station.lock;
-  ownerNode.innerText = lock.owner === null ? "Libre" : `Robot-${lock.owner + 1}`;
+  ownerNode.innerText =
+    lock.owner === null ? "Libre" : `Robot-${lock.owner + 1}`;
   turnNode.innerText = `Robot-${lock.turn + 1}`;
   flagsNode.innerText = `R1=${lock.flag[0] ? "1" : "0"} | R2=${lock.flag[1] ? "1" : "0"}`;
   totalUsesNode.innerText = String(context.station.totalUses);

@@ -3,7 +3,7 @@ import { Timeline } from "./timeline.js";
 import { createPetersonScenario } from "../scenarios/petersonScenario.js";
 import { renderPetersonView } from "./petersonRenderer.js";
 
-// UI del caso Peterson: dos robots en una estacion compartida.
+// UI del caso Peterson: dos robots en una estacion compartida
 export const PetersonUI = {
   autoInterval: null,
   simulationFinished: false,
@@ -20,7 +20,9 @@ export const PetersonUI = {
       const cycles = Math.max(1, Number($("petCycles").value) || 1);
       context = createPetersonScenario(engine, cycles);
       timeline.clear();
-      timeline.addEvent(`Escenario Peterson listo: 2 robots, ${cycles} ciclos cada uno.`);
+      timeline.addEvent(
+        `Escenario Peterson listo: 2 robots, ${cycles} ciclos cada uno.`,
+      );
       this.update(engine, context);
     };
 

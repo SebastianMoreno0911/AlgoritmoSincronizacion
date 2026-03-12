@@ -38,7 +38,9 @@ export const SemaphoreUI = {
       // Creo escenario y refresco timeline + UI.
       context = createPrinterScenario(engine, jobs, printers, jobConfig);
       timeline.clear();
-      timeline.addEvent(`Sistema listo: ${jobs} trabajos y ${printers} impresoras.`);
+      timeline.addEvent(
+        `Sistema listo: ${jobs} trabajos y ${printers} impresoras.`,
+      );
       this.update(engine, context);
     };
 

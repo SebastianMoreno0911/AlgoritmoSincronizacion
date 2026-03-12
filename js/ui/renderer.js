@@ -1,6 +1,6 @@
 import { clear } from "../utils/dom.js";
 
-// Dibuja estado visual de saldo y clientes.
+// Dibuja estado visual de saldo y clientes
 export function renderClients(
   container,
   threads,
@@ -10,12 +10,12 @@ export function renderClients(
 ) {
   clear(container);
 
-  // Bloque de saldo global.
+  // Bloque de saldo global
   const stats = document.createElement("div");
   stats.className =
     "w-full bg-black/30 p-4 rounded-lg mb-6 border border-gray-700";
 
-  // Protege calculo ante valores faltantes o invalidos.
+  // Protege calculo ante valores faltantes o invalidos
   const safeBalance = Number(account?.balance ?? 0);
   const safeInitialBalance = Math.max(1, Number(initialBalance) || 1);
   const percentage = Math.max(0, (safeBalance / safeInitialBalance) * 100);
@@ -37,12 +37,12 @@ export function renderClients(
   `;
   container.appendChild(stats);
 
-  // Contenedor de tarjetas por hilo.
+  // Contenedor de tarjetas por hilo
   const threadsGrid = document.createElement("div");
   threadsGrid.className = "flex flex-wrap gap-4 justify-center";
   container.appendChild(threadsGrid);
 
-  // Tarjeta de cada hilo con estado actual.
+  // Tarjeta de cada hilo con estado actual
   threads.forEach((thread) => {
     const card = document.createElement("div");
     let border = "border-gray-600";

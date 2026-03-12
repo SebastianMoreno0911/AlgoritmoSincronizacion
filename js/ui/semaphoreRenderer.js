@@ -1,7 +1,7 @@
 import { clear } from "../utils/dom.js";
 import { Instructions } from "../core/instructions.js";
 
-// Render de paneles para escenario de impresoras con semaforo.
+// Render de paneles para escenario de impresoras con semaforo
 export function renderSemaphoreView({
   printersContainer,
   threadsContainer,
@@ -10,10 +10,10 @@ export function renderSemaphoreView({
   context,
   threads,
 }) {
-  // Muestro tokens disponibles en tiempo real.
+  // Muestro tokens disponibles en tiempo real
   semaphoreCountNode.innerText = String(context.semaphore.count);
 
-  // Pinto cola del semaforo (hilos bloqueados esperando impresora).
+  // Pinto cola del semaforo (hilos bloqueados esperando impresora)
   clear(queueContainer);
   context.semaphore.queue.forEach((thread) => {
     const chip = document.createElement("div");
@@ -26,12 +26,12 @@ export function renderSemaphoreView({
   clear(printersContainer);
   context.printers.forEach((printer) => {
     const card = document.createElement("div");
-    // owner representa el trabajo que esta usando esta impresora.
+    // owner representa el trabajo que esta usando esta impresora
     const owner = printer.owner;
     const isBusy = Boolean(owner);
-    // Tomo paginas del trabajo actual para mostrarlas en panel.
+    // Tomo paginas del trabajo actual para mostrarlas en panel
     const pages = owner ? Math.max(1, Number(owner.jobPages) || 1) : 0;
-    // Instruccion actual del trabajo para inferir fase.
+    // Instruccion actual del trabajo para inferir fase
     const currentInst = owner?.currentInstruction?.();
     const phase = getPrinterPhase(owner, currentInst);
 
@@ -87,7 +87,7 @@ export function renderSemaphoreView({
     printersContainer.appendChild(card);
   });
 
-  // Panel secundario: estado de todos los trabajos.
+  // Panel secundario: estado de todos los trabajos
   clear(threadsContainer);
   threads.forEach((thread) => {
     const card = document.createElement("div");
@@ -108,14 +108,15 @@ export function renderSemaphoreView({
 }
 
 function getPrinterPhase(owner, currentInstruction) {
-  // Sin owner, la impresora esta libre.
+  // Sin owner, la impresora esta libre
   if (!owner) return "En espera de trabajo";
-  // Sin instruccion, el hilo ya termino todo su flujo.
+  // Sin instruccion, el hilo ya termino todo su flujo
   if (!currentInstruction) return "Finalizado";
 
-  // Traduzco instruccion tecnica a texto mas humano.
+  // Traduzco instruccion tecnica a texto mas humano
   if (currentInstruction.type === Instructions.PRINT) return "Imprimiendo";
-  if (currentInstruction.type === Instructions.SIGNAL_SEM) return "Liberando recurso";
+  if (currentInstruction.type === Instructions.SIGNAL_SEM)
+    return "Liberando recurso";
   if (currentInstruction.type === Instructions.END) return "Cerrando trabajo";
   return "Preparando impresion";
 }
