@@ -29,20 +29,6 @@ Comprende **mutex, semáforos y secciones críticas** mediante una interfaz inte
 
 ---
 
-# 🎬 Vista del Simulador
-
-<div align="center">
-
-![Simulador](docs/screenshot.png)
-
-![Simulador](docs/simulador.gif)
-
-</div>
-
-Este simulador permite observar cómo múltiples procesos compiten por recursos compartidos y cómo los algoritmos de sincronización controlan el acceso a la **sección crítica**.
-
----
-
 # 🧠 Algoritmos Implementados
 
 | Algoritmo                 | Descripción                                                                                                                                                                                                                                                                        |
